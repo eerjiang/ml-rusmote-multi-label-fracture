@@ -1,7 +1,6 @@
 library(dplyr)
 
 #' Calculate Imbalance Ratio per Label (IRLbl)
-#'
 #' Computes the imbalance ratio for each label in multi-label datasets,
 #' which is defined as the maximum number of positive samples across all labels
 #' divided by the number of positive samples of the current label.

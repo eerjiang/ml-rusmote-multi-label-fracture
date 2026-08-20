@@ -1,5 +1,5 @@
 # Import pre-written ML-RUSMOTE algorithm functions
-source("ml_rusmote.R")
+source("fun_ml_rusmote.R")
 
 # -------------------------- Global Hyperparameter Configuration --------------------------
 # ML-DNN network layer unit settings

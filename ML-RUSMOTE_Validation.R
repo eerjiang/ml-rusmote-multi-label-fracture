@@ -55,21 +55,21 @@ resample_time <- Sys.time() - start_time
 cat("ML-RUSMOTE resampling finished, time cost:", round(resample_time, 2), units(resample_time), "\n")
 
 # Combine resampled features and labels into a complete data frame
-tbl_mymodel_train_0 <- as.data.frame(cbind(a1[[1]], a1[[2]]))
+tbl_mlrusmote_train_0 <- as.data.frame(cbind(a1[[1]], a1[[2]]))
 # Verify imbalance level after resampling
-post_irlbl <- IRLbl(tbl_mymodel_train_0[,n1:n2])
-post_meanir <- MeanIR(tbl_mymodel_train_0[,n1:n2])
+post_irlbl <- IRLbl(tbl_mlrusmote_train_0[,n1:n2])
+post_meanir <- MeanIR(tbl_mlrusmote_train_0[,n1:n2])
 cat("\nPost-resample Mean Imbalance Ratio (MeanIR):", round(post_meanir, 3), "\n")
 cat("Post-resample per-label Imbalance Ratio (IRLbl):\n")
 print(post_irlbl)
 
 # Print post-resample label distribution details for validation
-post_label_sum <- apply(tbl_mymodel_train_0[,n1:n2], 1, sum)
+post_label_sum <- apply(tbl_mlrusmote_train_0[,n1:n2], 1, sum)
 cat("\nPost-resample number of labels per sample distribution:\n")
 print(table(post_label_sum))
 cat("Post-resample single-label positive sample counts:\n")
 for (col_idx in n1:n2) {
-  cat(paste0(colnames(tbl_mymodel_train_0)[col_idx], ": ", sum(tbl_mymodel_train_0[, col_idx] == 1), "\n"))
+  cat(paste0(colnames(tbl_mlrusmote_train_0)[col_idx], ": ", sum(tbl_mlrusmote_train_0[, col_idx] == 1), "\n"))
 }
 # Compare with original training set label distribution
 orig_label_sum <- apply(tbl_orig_train_y, 1, sum)
@@ -77,33 +77,33 @@ cat("\nOriginal training set number of labels per sample distribution:\n")
 print(table(orig_label_sum))
 
 # Convert resampled dataset to standard mldr format for multi-label model training
-tbl_mymodel_train_2 <- mldr_from_dataframe(tbl_mymodel_train_0, labelIndices = c(n1:n2), name = "trainMLDR")
+tbl_mlrusmote_train_2 <- mldr_from_dataframe(tbl_mlrusmote_train_0, labelIndices = c(n1:n2), name = "trainMLDR")
 
 # Prepare formatted input for deep learning model
-tbl_mymodel_train_x <- as.matrix(tbl_mymodel_train_2$dataset[,1:n0])
-tbl_mymodel_train_y <- as.matrix(tbl_mymodel_train_2$dataset[,n1:n2])
+tbl_mlrusmote_train_x <- as.matrix(tbl_mlrusmote_train_2$dataset[,1:n0])
+tbl_mlrusmote_train_y <- as.matrix(tbl_mlrusmote_train_2$dataset[,n1:n2])
 
 # -------------------------- Train Three Final Models --------------------------
 # Train Binary Relevance (BR) Model
 if (model_set == 1) {
   cat("\n=== Training BR Model ===\n")
-  model_br_mymodel <- br(tbl_mymodel_train_2)
+  model_br_mlrusmote <- br(tbl_mlrusmote_train_2)
 }
 
 # Train ML-kNN Model
 if (model_set == 1) {
   cat("\n=== Training ML-kNN Model ===\n")
-  model_mlknn_mymodel <- mlknn(tbl_mymodel_train_2, k = 3)
+  model_mlknn_mlrusmote <- mlknn(tbl_mlrusmote_train_2, k = 3)
 }
 
 # Train ML-DNN Deep Model
 if (model_set == 1) {
   cat("\n=== Training DNN Model ===\n")
-  feature_dim <- ncol(tbl_mymodel_train_x)
-  label_dim <- ncol(tbl_mymodel_train_y)
+  feature_dim <- ncol(tbl_mlrusmote_train_x)
+  label_dim <- ncol(tbl_mlrusmote_train_y)
   
   # Construct sequential DNN architecture
-  model_dl_mymodel <- keras_model_sequential()  %>%
+  model_dnn_mlrusmote <- keras_model_sequential()  %>%
     layer_dense(units = u1, activation = 'relu', input_shape = feature_dim) %>%
     layer_dropout(rate = 0.1) %>%
     layer_dense(units = u2, activation = 'relu') %>%
@@ -111,16 +111,16 @@ if (model_set == 1) {
     layer_dense(units = label_dim, activation = 'sigmoid') # Use sigmoid for independent multi-label classification
   
   # Compile DNN training configuration
-  model_dl_mymodel %>% compile(
+  model_dnn_mlrusmote %>% compile(
     optimizer = 'rmsprop',
     loss = 'binary_crossentropy',
     metrics = c('accuracy')
   )
   
   # Execute model training
-  history_mymodel <- model_dl_mymodel %>% fit(
-    tbl_mymodel_train_x,
-    tbl_mymodel_train_y,
+  history_mlrusmote <- model_dnn_mlrusmote %>% fit(
+    tbl_mlrusmote_train_x,
+    tbl_mlrusmote_train_y,
     epochs = 50,
     batch_size = bs,
     validation_split = vs,
@@ -128,7 +128,7 @@ if (model_set == 1) {
   )
   
   # Plot and save DNN training curve to local file
-  p <- plot(history_mymodel)
+  p <- plot(history_mlrusmote)
   ggsave("output/holdout/dnn_training_curve.png", p, width = 8, height = 5)
   cat("DNN training curve saved to output/holdout/dnn_training_curve.png\n")
 }
@@ -136,90 +136,90 @@ if (model_set == 1) {
 # -------------------------- Calculate Optimal Classification Threshold for Each Model & Label --------------------------
 cat("\n=== Calculating optimal classification thresholds based on training set predictions ===\n")
 # Generate prediction results on the training set for threshold calculation
-pred_br_mymodel_train <- if (model_set == 1) predict(model_br_mymodel, tbl_mymodel_train_2) else NULL
-pred_mlknn_mymodel_train <- if (model_set == 1) predict(model_mlknn_mymodel, tbl_mymodel_train_2) else NULL
-pred_dl_mymodel_train <- if (model_set == 1) predict(model_dl_mymodel, tbl_mymodel_train_x, verbose = 0) else NULL
+pred_br_mlrusmote_train <- if (model_set == 1) predict(model_br_mlrusmote, tbl_mlrusmote_train_2) else NULL
+pred_mlknn_mlrusmote_train <- if (model_set == 1) predict(model_mlknn_mlrusmote, tbl_mlrusmote_train_2) else NULL
+pred_dnn_mlrusmote_train <- if (model_set == 1) predict(model_dnn_mlrusmote, tbl_mlrusmote_train_x, verbose = 0) else NULL
 
 # Collect only the enabled model predictions
-all_train_preds <- compact(list(pred_br_mymodel_train, pred_mlknn_mymodel_train, pred_dl_mymodel_train))
+all_train_preds <- compact(list(pred_br_mlrusmote_train, pred_mlknn_mlrusmote_train, pred_dnn_mlrusmote_train))
 model_names_enabled <- c("BR", "ML-kNN", "DNN")[as.logical(model_set)]
 
 # Initialize threshold matrix with proper dimension
-tbl_threshold_mymodel_train <- matrix(NA, nrow = length(all_train_preds), ncol = n_labels)
-rownames(tbl_threshold_mymodel_train) <- model_names_enabled
-colnames(tbl_threshold_mymodel_train) <- colnames(tbl_mymodel_train_y)
+tbl_threshold_mlrusmote_train <- matrix(NA, nrow = length(all_train_preds), ncol = n_labels)
+rownames(tbl_threshold_mlrusmote_train) <- model_names_enabled
+colnames(tbl_threshold_mlrusmote_train) <- colnames(tbl_mlrusmote_train_y)
 
 # Loop through each model and each label to find optimal threshold
 for (model_idx in 1:length(all_train_preds)) {
   y_pred_all <- all_train_preds[[model_idx]]
   for (label_idx in 1:n_labels) {
     y_pred <- as.numeric(y_pred_all[, label_idx])
-    y_true <- as.numeric(tbl_mymodel_train_2$dataset[, n0 + label_idx])
+    y_true <- as.numeric(tbl_mlrusmote_train_2$dataset[, n0 + label_idx])
     
     # Skip labels with only single class to avoid roc function error
     if (length(unique(y_true)) < 2) {
-      warning(paste0("Label ", colnames(tbl_mymodel_train_y)[label_idx], " in model ", model_names_enabled[model_idx], " only contains one class, threshold will be set to 0.5 as default"))
-      tbl_threshold_mymodel_train[model_idx, label_idx] <- 0.5
+      warning(paste0("Label ", colnames(tbl_mlrusmote_train_y)[label_idx], " in model ", model_names_enabled[model_idx], " only contains one class, threshold will be set to 0.5 as default"))
+      tbl_threshold_mlrusmote_train[model_idx, label_idx] <- 0.5
       next
     }
     
     # Calculate optimal threshold that maximizes Youden's J statistic (sensitivity + specificity - 1)
     roc_lg <- pROC::roc(y_true, y_pred, quiet = TRUE)
     best_cutoff <- coords(roc_lg, x = "best", transpose = FALSE)
-    tbl_threshold_mymodel_train[model_idx, label_idx] <- best_cutoff$threshold
+    tbl_threshold_mlrusmote_train[model_idx, label_idx] <- best_cutoff$threshold
   }
 }
 
 # Export threshold table for later reuse
-write.csv(tbl_threshold_mymodel_train, file = "output/holdout/optimal_classification_thresholds.csv", row.names = TRUE)
+write.csv(tbl_threshold_mlrusmote_train, file = "output/holdout/optimal_classification_thresholds.csv", row.names = TRUE)
 cat("Optimal threshold calculation finished, full table exported to output/holdout/optimal_classification_thresholds.csv\n")
 
 # -------------------------- Run Prediction on Independent Test Set --------------------------
 cat("\n=== Running prediction on the test set ===\n")
 # BR model prediction and base evaluation
-pred_br_mymodel_val <- NULL
-me_br_mymodel_val <- NULL
+pred_br_mlrusmote_val <- NULL
+me_br_mlrusmote_val <- NULL
 if (model_set == 1) {
-  pred_br_mymodel_val <- predict(model_br_mymodel, val_set_2)
-  me_br_mymodel_val <- multilabel_evaluate(val_set_2, pred_br_mymodel_val)
+  pred_br_mlrusmote_val <- predict(model_br_mlrusmote, val_set_2)
+  me_br_mlrusmote_val <- multilabel_evaluate(val_set_2, pred_br_mlrusmote_val)
   cat("BR model standard evaluation metrics:\n")
-  print(me_br_mymodel_val)
+  print(me_br_mlrusmote_val)
 }
 
 # ML-kNN model prediction and base evaluation
-pred_mlknn_mymodel_val <- NULL
-me_mlknn_mymodel_val <- NULL
+pred_mlknn_mlrusmote_val <- NULL
+me_mlknn_mlrusmote_val <- NULL
 if (model_set == 1) {
-  pred_mlknn_mymodel_val <- predict(model_mlknn_mymodel, val_set_2)
-  me_mlknn_mymodel_val <- multilabel_evaluate(val_set_2, pred_mlknn_mymodel_val)
+  pred_mlknn_mlrusmote_val <- predict(model_mlknn_mlrusmote, val_set_2)
+  me_mlknn_mlrusmote_val <- multilabel_evaluate(val_set_2, pred_mlknn_mlrusmote_val)
   cat("\nML-kNN model standard evaluation metrics:\n")
-  print(me_mlknn_mymodel_val)
+  print(me_mlknn_mlrusmote_val)
 }
 
 # DNN model prediction and base evaluation
-pred_dl_mymodel_val <- NULL
-me_dl_mymodel_val <- NULL
+pred_dnn_mlrusmote_val <- NULL
+me_dnn_mlrusmote_val <- NULL
 if (model_set == 1) {
-  pred_dl_mymodel_val <- model_dl_mymodel %>% predict(val_set_1_x, verbose = 0)
-  pred_dl_mymodel_val <- as.mlresult(pred_dl_mymodel_val)
-  me_dl_mymodel_val <- multilabel_evaluate(val_set_2, pred_dl_mymodel_val)
+  pred_dnn_mlrusmote_val <- model_dnn_mlrusmote %>% predict(val_set_1_x, verbose = 0)
+  pred_dnn_mlrusmote_val <- as.mlresult(pred_dnn_mlrusmote_val)
+  me_dnn_mlrusmote_val <- multilabel_evaluate(val_set_2, pred_dnn_mlrusmote_val)
   cat("\nDNN model standard evaluation metrics:\n")
-  print(me_dl_mymodel_val)
+  print(me_dnn_mlrusmote_val)
   # Clean up Keras session to release memory
   gc()
   keras3::k_clear_session()
 }
 
 # Export raw prediction results of all models
-if (!is.null(pred_br_mymodel_val)) write.csv(pred_br_mymodel_val, file = "output/holdout/pred_br_mymodel_val.csv", row.names = FALSE)
-if (!is.null(pred_mlknn_mymodel_val)) write.csv(pred_mlknn_mymodel_val, file = "output/holdout/pred_mlknn_mymodel_val.csv", row.names = FALSE)
-if (!is.null(pred_dl_mymodel_val)) write.csv(pred_dl_mymodel_val, file = "output/holdout/pred_dl_mymodel_val.csv", row.names = FALSE)
+if (!is.null(pred_br_mlrusmote_val)) write.csv(pred_br_mlrusmote_val, file = "output/holdout/pred_br_mlrusmote_val.csv", row.names = FALSE)
+if (!is.null(pred_mlknn_mlrusmote_val)) write.csv(pred_mlknn_mlrusmote_val, file = "output/holdout/pred_mlknn_mlrusmote_val.csv", row.names = FALSE)
+if (!is.null(pred_dnn_mlrusmote_val)) write.csv(pred_dnn_mlrusmote_val, file = "output/holdout/pred_dnn_mlrusmote_val.csv", row.names = FALSE)
 cat("\nAll raw test set prediction results saved.\n")
 
 # -------------------------- Custom Metric Calculation (Macro F1, MCC, PRAUC) --------------------------
 cat("\n=== Calculating custom evaluation metrics: Macro F1, MCC, PRAUC ===\n")
 # Collect all valid test set prediction results
-all_test_preds <- compact(list(pred_br_mymodel_val, pred_mlknn_mymodel_val, pred_dl_mymodel_val))
+all_test_preds <- compact(list(pred_br_mlrusmote_val, pred_mlknn_mlrusmote_val, pred_dnn_mlrusmote_val))
 # Get ground truth label matrix of test set
 tbl_temp_true_base <- val_set_1
 
@@ -239,7 +239,7 @@ for (model_idx in 1:length(all_test_preds)) {
     y_true <- as.numeric(tbl_temp_true_base[, 23 + label_idx])
     
     # Get pre-calculated optimal threshold for current model and label
-    t <- tbl_threshold_mymodel_train[model_idx, label_idx]
+    t <- tbl_threshold_mlrusmote_train[model_idx, label_idx]
     # Binarize prediction scores using the optimal threshold
     b0 <- ifelse(y_pred > t, 1, 0)
     
@@ -278,7 +278,7 @@ for (model_idx in 1:length(all_test_preds)) {
   # Combine per-label metrics for current model
   temp_0 <- rbind(tbl_f1_training, tbl_mcc_training, tbl_prauc_training)
   temp_0 <- as.data.frame(temp_0)
-  colnames(temp_0) <- colnames(tbl_mymodel_train_y)
+  colnames(temp_0) <- colnames(tbl_mlrusmote_train_y)
   
   # Calculate average metric value across all labels
   temp_0$mean_values <- apply(temp_0, 1, mean, na.rm = TRUE)
@@ -291,10 +291,10 @@ for (model_idx in 1:length(all_test_preds)) {
 }
 
 # Reorder columns for better readability
-tbl_f1_mcc_prauc_val <- tbl_f1_mcc_prauc_val[, c("model", "m_metrics", colnames(tbl_mymodel_train_y), "mean_values")]
+tbl_f1_mcc_prauc_val <- tbl_f1_mcc_prauc_val[, c("model", "m_metrics", colnames(tbl_mlrusmote_train_y), "mean_values")]
 
 # Print and export final custom metric table
 cat("\nFinal custom evaluation metrics for all models:\n")
 print(tbl_f1_mcc_prauc_val)
-write.csv(tbl_f1_mcc_prauc_val, file = "output/holdout/tbl_f1_mcc_prauc_val_mymodel_threshold.csv", row.names = FALSE)
-cat("\nFull custom evaluation result exported to output/holdout/tbl_f1_mcc_prauc_val_mymodel_threshold.csv\n")
+write.csv(tbl_f1_mcc_prauc_val, file = "output/holdout/tbl_f1_mcc_prauc_val_mlrusmote_threshold.csv", row.names = FALSE)
+cat("\nFull custom evaluation result exported to output/holdout/tbl_f1_mcc_prauc_val_mlrusmote_threshold.csv\n")

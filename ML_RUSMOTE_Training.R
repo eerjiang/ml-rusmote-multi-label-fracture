@@ -70,7 +70,7 @@ for (param_idx in 1:nrow(param_grid)) {
     set.seed(123)
     tbl_orig_train_x <- tbl_orig_train$dataset[,1:n0]
     tbl_orig_train_y <- tbl_orig_train$dataset[,n1:n2]
-    a1 <- ML_RUS_SMOTE(
+    a1 <- ML_RUSMOTE(
       X = as.matrix(tbl_orig_train_x),
       y = as.matrix(tbl_orig_train_y),
       nsr = current_params$nsr,

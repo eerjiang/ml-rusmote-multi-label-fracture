@@ -1,4 +1,4 @@
-# Data preprocessing script: split dataset into 80% training set and 20% validation set, perform standardization
+# Data preprocessing script: split dataset into 80% training set and 20% hold-out set, perform standardization
 # Load required dependent packages
 library(caret)
 library(dplyr)
@@ -7,11 +7,15 @@ library(mldr)
 # Load original raw dataset
 data <- read.csv("input/data_final_mul_2.csv", header = TRUE, sep = ",")
 
-# Calculate total number of fracture sites per sample (columns 24 to 28 correspond to 5 fracture site labels)
-data$fx_count <- apply(data[,24:28], 1, sum)
+# Delete Id column
+data <- data[,-1]
+
+# Calculate total number of fracture sites per sample (columns 24 to 27 correspond to 4 fracture site labels)
+data$fx_count <- apply(data[,24:27], 1, sum)
 
 # Define stratification variable to preserve label distribution consistency after splitting
 stratified_var <- "fx_count"
+
 
 # Set fixed random seed to ensure 100% reproducibility of data splitting results
 GLOBAL_SEED <- 123
@@ -25,6 +29,7 @@ dev_index <- createDataPartition(
   times = 1,                   # Run one-time split instead of multiple repeated splits
   list = FALSE                 # Return split result in matrix format instead of nested list
 )
+
 
 # Generate training set and validation set based on split index
 dev_set <- data[dev_index, ]
@@ -43,6 +48,7 @@ print(apply(dev_set[,24:ncol(dev_set)], 2, sum))
 # Print total positive sample count for each label in validation set
 cat("\nPer-label positive sample count in validation set:\n")
 print(apply(val_set[,24:ncol(val_set)], 2, sum))
+
 
 # -------------------------- Training Set Standardization Processing --------------------------
 if(TRUE){
@@ -83,10 +89,11 @@ if(TRUE){
 # Export fully processed training set data to local file
 write.csv(as.data.frame(tbl_orig_matrix), file = "tbl_orig_1.csv", row.names = FALSE)
 
-# -------------------------- Validation Set Standardization Processing --------------------------
+
+# -------------------------- Hold-out Set Standardization Processing --------------------------
 if(TRUE){
-  # Remove redundant non-fx and fx_count auxiliary columns from original validation set
-  val_set_1 <- val_set %>% select(-fx_count, -non_fx)
+  # Remove redundant fx_count auxiliary column from original hold-out set
+  val_set_1 <- val_set %>% select(-fx_count)
   
   # Reorder columns to keep completely consistent with the column order of processed training set
   total_feature_num <- 23
@@ -106,11 +113,11 @@ if(TRUE){
     val_set_1_matrix[, i] <- (val_set_1_matrix[, i] - train_feature_min[i]) / train_feature_range[i]
   }
   
-  # Split processed validation data into independent feature subset and standard mldr multi-label format dataset
+  # Split processed hold-out data into independent feature subset and standard mldr multi-label format dataset
   val_set_1_x <- val_set_1_matrix[, 1:total_feature_num]
   val_set_1 <- as.data.frame(val_set_1_matrix)
   val_set_2 <- mldr_from_dataframe(val_set_1, labelIndices = c(24:ncol(val_set_1)), name = "testMLDR")
 }
 
-# Export fully processed validation set data to local file
+# Export fully processed hold-out set data to local file
 write.csv(val_set_1, file = "val_set_1.csv", row.names = FALSE)

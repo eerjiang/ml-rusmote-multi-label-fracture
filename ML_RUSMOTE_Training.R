@@ -1,5 +1,12 @@
+library(dplyr)
+library(keras3)
+library(mldr)
+library(utiml)
+library(purrr)
+
 # Import pre-written ML-RUSMOTE algorithm functions
-source("fun_ml_rusmote.R")
+source("ML-RUSMOTE Function.R")
+
 
 # -------------------------- Global Hyperparameter Configuration --------------------------
 # ML-DNN network layer unit settings
@@ -18,10 +25,10 @@ GLOBAL_SEED <- 100
 # Define the candidate parameter search grid to find optimal values
 # Adjust this list to expand your parameter search range
 param_grid <- expand.grid(
-  nsr = c(0.5, 0.6, 0.7),
-  usr = c(0.8, 1, 1.2),
+  nsr = c(0.3, 0.4, 0.5, 0.6, 0.7),
+  usr = c(0.5, 0.75, 1, 1.25, 2),
   smote_k = 5,
-  mlknn_k = c(3, 5, 7),
+  mlknn_k = c(2, 3, 4, 5),
   stringsAsFactors = FALSE
 )
 
@@ -68,20 +75,20 @@ for (param_idx in 1:nrow(param_grid)) {
     
     # Execute ML-RUSMOTE oversampling + undersampling processing
     set.seed(123)
-    tbl_orig_train_x <- tbl_orig_train$dataset[,1:n0]
+    tbl_orig_train_x <- tbl_orig_train$dataset[,1:n_features]
     tbl_orig_train_y <- tbl_orig_train$dataset[,n1:n2]
-    a1 <- ML_RUSMOTE(
+    a1 <- ML_RUS_SMOTE(
       X = as.matrix(tbl_orig_train_x),
       y = as.matrix(tbl_orig_train_y),
       nsr = current_params$nsr,
       usr = current_params$usr,
       k = current_params$smote_k,
-      f_cont = c(1:6),
-      f_cat = c(7:n0)
+      f_cont = c(1:n_features_cont),
+      f_cat = c(n3:n_features)
     )
     
     # Verify imbalance ratio after resampling
-    tbl_mlrusmote_train_0 <- as.data.frame(cbind(a1[], a1[]))
+    tbl_mlrusmote_train_0 <- as.data.frame(cbind(a1[[1]], a1[[2]]))
     processed_irlbl <- IRLbl(tbl_mlrusmote_train_0[,n1:n2])
     processed_meanir <- MeanIR(tbl_mlrusmote_train_0[,n1:n2])
     cat("Fold", n_r, " | Post-resample MeanIR:", round(processed_meanir, 3), "\n")
@@ -89,9 +96,9 @@ for (param_idx in 1:nrow(param_grid)) {
     tbl_mlrusmote_train_2 <- mldr_from_dataframe(tbl_mlrusmote_train_0, labelIndices = c(n1:n2), name = "trainMLDR")
     
     # Prepare formatted DNN training and test input data
-    tbl_mlrusmote_train_x <- as.matrix(tbl_mlrusmote_train_2$dataset[,1:n0])
+    tbl_mlrusmote_train_x <- as.matrix(tbl_mlrusmote_train_2$dataset[,1:n_features])
     tbl_mlrusmote_train_y <- as.matrix(tbl_mlrusmote_train_2$dataset[,n1:n2])
-    tbl_orig_test_x <- as.matrix(tbl_orig_test$dataset[,1:n0])
+    tbl_orig_test_x <- as.matrix(tbl_orig_test$dataset[,1:n_features])
     tbl_orig_test_y <- as.matrix(tbl_orig_test$dataset[,n1:n2])
     
     # -------------------------- Binary Relevance (BR) Model Training & Evaluation --------------------------

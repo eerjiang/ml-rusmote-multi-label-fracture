@@ -1,6 +1,7 @@
 library(dplyr)
 
 #' Calculate Imbalance Ratio per Label (IRLbl)
+#'
 #' Computes the imbalance ratio for each label in multi-label datasets,
 #' which is defined as the maximum number of positive samples across all labels
 #' divided by the number of positive samples of the current label.
@@ -196,7 +197,7 @@ get_sample_thr <- function(y, nsr) {
 #' @param f_cont Integer/character vector of indices/names of continuous features
 #' @param f_cat Integer/character vector of indices/names of categorical features
 #' @return List with two elements: balanced final feature set, balanced final label set
-ML_RUSMOTE <- function(X, y, nsr, usr, k, f_cont, f_cat) {
+ML_RUS_SMOTE <- function(X, y, nsr, usr, k, f_cont, f_cat) {
   # Full input validation
   if (!is.data.frame(X) && !is.matrix(X)) stop("X must be a matrix or data frame")
   if (!is.data.frame(y) && !is.matrix(y)) stop("y must be a matrix or data frame")
@@ -283,8 +284,10 @@ ML_RUSMOTE <- function(X, y, nsr, usr, k, f_cont, f_cat) {
   y_nonzero <- y[index_nonzero, , drop = FALSE]
   
   # Combine all parts to get final balanced dataset
-  X_final <- dplyr::bind_rows(X_zero_us, X_nonzero, X_new[1:j, , drop = FALSE])
-  y_final <- dplyr::bind_rows(y_zero_us, y_nonzero, y_new[1:j, , drop = FALSE])
+  # X_final <- dplyr::bind_rows(X_zero_us, X_nonzero, X_new[1:j, , drop = FALSE])
+  # y_final <- dplyr::bind_rows(y_zero_us, y_nonzero, y_new[1:j, , drop = FALSE])
+  X_final <- rbind(X_zero_us, X_nonzero, X_new[1:j, , drop = FALSE])
+  y_final <- rbind(y_zero_us, y_nonzero, y_new[1:j, , drop = FALSE])
   
   rownames(X_final) <- NULL
   rownames(y_final) <- NULL

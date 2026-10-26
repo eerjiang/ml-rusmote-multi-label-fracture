@@ -5,7 +5,7 @@ library(utiml)
 library(purrr)
 
 # Import pre-written ML-RUSMOTE algorithm functions
-source("ML-RUSMOTE Function.R")
+source("ML_RUSMOTE_Function.R")
 
 
 # -------------------------- Global Hyperparameter Configuration --------------------------

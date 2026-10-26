@@ -8,7 +8,7 @@ library(PRROC)
 library(tibble)
 
 # Import pre-written ML-RUSMOTE algorithm functions
-source("nhanes_fun_ml_rusmote.R")
+source("ML_RUSMOTE_Function.R")
 
 # -------------------------- Global Hyperparameter Configuration --------------------------
 # DNN network layer unit settings

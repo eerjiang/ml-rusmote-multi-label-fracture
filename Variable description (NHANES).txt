@@ -1,0 +1,14 @@
+SEQN - Respondent sequence number
+DXXOFBMD - Total femur BMD
+DXXOFBMC - Total femur BMC
+DXXOFA - Total femur area
+DXXNKBMD - Femoral neck BMD
+DXXNKBMC - Femoral neck BMC
+DXXNKA - Femoral neck area
+DXXOSBMD - Total spine BMD
+DXXOSBMC - Total spine BMC
+DXXOSA - Total spine area
+Osteo_Class.x
+OSQ010A.x - Hip fracture
+OSQ010B.x - Wrist fracture
+OSQ010C.x - Spine fracture

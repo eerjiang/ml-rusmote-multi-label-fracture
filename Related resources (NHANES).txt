@@ -1,0 +1,34 @@
+SEQN - Respondent sequence number
+DXXOFBMD - Total femur BMD
+DXXOFBMC - Total femur BMC
+DXXOFA - Total femur area
+DXXNKBMD - Femoral neck BMD
+DXXNKBMC - Femoral neck BMC
+DXXNKA - Femoral neck area
+DXXOSBMD - Total spine BMD
+DXXOSBMC - Total spine BMC
+DXXOSA - Total spine area
+Osteo_Class.x
+OSQ010A.x - Hip fracture
+OSQ010B.x - Wrist fracture
+OSQ010C.x - Spine fracture
+
+Original dataset download link:
+https://dfzljdn9uc3pi.cloudfront.net/2024/cs-2338/1/spine_osteo.xlsx
+https://dfzljdn9uc3pi.cloudfront.net/2024/cs-2338/1/femur_osteo.xlsx
+
+Related resources:
+National Health and Nutrition Examination Survey
+2017-March 2020 Data Documentation, Codebook, and Frequencies
+Osteoporosis (P_OSQ)
+URL: https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/P_OSQ.htm#Component_Description
+
+National Health and Nutrition Examination Survey
+2017-March 2020 Data Documentation, Codebook, and Frequencies
+Dual-Energy X-ray Absorptiometry - Spine (P_DXXSPN)
+URL: https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/P_DXXSPN.htm#Component_Description
+
+National Health and Nutrition Examination Survey
+2017-March 2020 Data Documentation, Codebook, and Frequencies
+Dual-Energy X-ray Absorptiometry - Femur (P_DXXFEM)
+URL: https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/P_DXXFEM.htm#Component_Description

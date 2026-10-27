@@ -28,17 +28,8 @@ The raw NHANES data are publicly available from the [CDC NHANES website](https:/
 
 ### R Environment
 - R version 4.5.0
-- Key packages: `car`, `dplyr`, `keras3`, `mldr`, `mldr.resampling`, `pROC`, `PRROC`, `utiml`
-- Dependency lock file: `renv.lock`
+- Key packages: `car`, `dplyr`, `keras3`, `mldr`, `mldr.resampling`, `pROC`, `PRROC`, `tibble`, `utiml`
 
 ### Python Environment
 - Python version 3.13.9
 - Key packages: `shap`, `numpy`, `pandas`, `matplotlib`, `tensorflow`
-- Dependency file: `requirements.txt`
-
-## Setup
-
-### R Environment
-```r
-install.packages("renv")
-renv::restore()  # 自动安装 renv.lock 中锁定的所有包及版本

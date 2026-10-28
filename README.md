@@ -1,6 +1,6 @@
 # MSFRAM: Multi-label Fracture Risk Assessment Model
 
-# Code accompanying the manuscript "ML-RUSMOTE: An Approach to Address Multi-Label Imbalance for Multi-Site Fracture Risk Assessment Using Deep Learning" submitted to xxx.
+# Code accompanying the manuscript "ML-RUSMOTE: An Approach to Address Multi-Label Imbalance for Multi-Site Fracture Risk Assessment Using Deep Learning".
 
 ## Overview
 

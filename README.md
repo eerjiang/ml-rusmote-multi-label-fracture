@@ -19,7 +19,6 @@ The raw NHANES data are publicly available from the [CDC NHANES website](https:/
 | `ML_RUSMOTE_Training.R` | Script for training and evaluating ML-RUSMOTE on the training set. |
 | `ML_RUSMOTE_Holdout.R` | Script for evaluating ML-RUSMOTE on the hold-out set. |
 | `MSFRAM.R` | Script for the MSFRAM model, including performance evaluation and comparison with the FRAX model. |
-| `NHANES dataset.csv` | Derived analysis-ready NHANES dataset used in the study (N = 1,928). |
 | `Related resources (NHANES).txt` | Reference materials and resources used during NHANES data preparation. |
 | `Variable description (NHANES).txt` | Description of variables included in the analysis dataset. |
 

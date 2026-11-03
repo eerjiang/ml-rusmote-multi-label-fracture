@@ -10,7 +10,7 @@ The repository provides a reproducible pipeline for:
 - Training and evaluating the ML-RUSMOTE algorithm;
 - Building and evaluating the MSFRAM model;
 - Comparing MSFRAM and MSFRAM variants with FRAX for hip fracture and major osteoporotic fracture prediction.
-The raw NHANES data are publicly available from the [CDC NHANES website](https://wwwn.cdc.gov/nchs/nhanes/). This repository provides the derived analysis dataset and the code required to reproduce the main analyses reported in the manuscript.
+The raw NHANES data are publicly available from the [CDC NHANES website](https://wwwn.cdc.gov/nchs/nhanes/). This repository provides the code required to reproduce the main analyses reported in the manuscript.
 ## Repository Structure
 | File | Description |
 |---|---|
